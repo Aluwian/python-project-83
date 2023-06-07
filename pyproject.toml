@@ -4,11 +4,20 @@ version = "0.1.0"
 description = ""
 authors = ["Anna Bystrova <annbystr@gmail.com>"]
 readme = "README.md"
-packages = [{include = "hexlet_code"}]
+repository = "https://github.com/Aluwian/python-project-83"
+packages = [{include = "app"}]
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+]
+
 
 [tool.poetry.dependencies]
 python = "^3.10"
+flask = "^2.3.2"
 
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^6.0.0"
 
 [build-system]
 requires = ["poetry-core"]
