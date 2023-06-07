@@ -5,7 +5,7 @@ description = ""
 authors = ["Anna Bystrova <annbystr@gmail.com>"]
 readme = "README.md"
 repository = "https://github.com/Aluwian/python-project-83"
-packages = [{include = "app"}]
+packages = [{include = "page_analyzer"}]
 classifiers = [
     "Programming Language :: Python :: 3.10",
 ]
