@@ -3,4 +3,4 @@
 [![example workflow](https://github.com/Aluwian/python-project-83/actions/workflows/my-action.yml/badge.svg)](https://github.com/Aluwian/python-project-83/actions/workflows/my-action.yml)
 
 
-[Перейти](python-project-83-production-2996.up.railway.app)
+[Перейти](https://python-project-83-production-2996.up.railway.app)
