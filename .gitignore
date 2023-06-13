@@ -1,7 +1,10 @@
 # created by virtualenv automatically
-*
 .venv/
 __pycache__/
 dist/
 .idea/
 .env
+tests/__pycache__/
+.pytest_cahe/
+.coverage
+coverage.xml 
