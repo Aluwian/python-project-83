@@ -1,4 +1,3 @@
-import pytest
 from page_analyzer.app import app
 from werkzeug.test import Client
 
