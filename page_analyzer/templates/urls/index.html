@@ -18,30 +18,37 @@
     </nav>
 </header>
 
-{% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
-    {% endfor %}
-{% endif %}
+
 
 <main class="flex-grow-1">
     <div class="container-lg mt-3">
-        <div class="row">
-            <div class="col-12 col-md-10 col-lg-8 mx-auto border rounded-3 bg-light p-5">
-                <h1 class="display-3">Анализатор страниц</h1>
-                <p class="lead">Бесплатно проверяйте сайты на SEO-пригодность</p>
-                <form action="/urls" method="post" class="d-flex justify-content-center" required>
-                    <input type="text" name="url" placeholder="https://www.example.com" value="" class="form-control form-control-lg">
-                    {% if errors %}
-                    <div>{{ errors.url }}</div>
-                    {% endif %}
-                    <input type="submit" value="Проверить" class="btn btn-primary btn-lg ms-3 px-5 text-uppercase mx-5">
-                </form>
-            </div>
+        <h1>Сайты</h1>
+        <div class="table-responsive">
+            <table class="table table-bordered border-border-dark-subtle table-hover" data-test="urls">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Имя</th>
+                    <th>Последняя проверка</th>
+                    <th>Код ответа</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for url in urls %}
+                <tr>
+                    <td>{{ url.id }}</td>
+                    <td>
+                        <a href="/urls/{{ url.id }}">{{ url.name }}</a>
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </main>
-
 
 <footer class="border-top py-3 mt-5 flex-shrink-0">
     <div class="text-center">
