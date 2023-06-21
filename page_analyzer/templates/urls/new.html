@@ -45,33 +45,36 @@
                 </tbody>
             </table>
         </div>
-        <h2 class="mt-2">Проверки</h2>
         
-        <form>
+        <h2 class="mt-2">Проверки</h2>
+        <form method="post" action="/urls/{{ id }}/checks">
             <input type="submit" value="Запустить проверку" class="btn btn-primary">
         </form>
         
         <table class="table table-bordered border-border-dark-subtle table-hover mt-3" data-test="url">
-                            <thead>
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Код ответа</th>
-                    <th scope="col">h1</th>
-                    <th scope="col">title</th>
-                    <th scope="col">description</th>
-                    <th scope="col">Дата создания</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <th></th>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                </tbody>
+            <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Код ответа</th>
+                <th scope="col">h1</th>
+                <th scope="col">title</th>
+                <th scope="col">description</th>
+                <th scope="col">Дата создания</th>
+            </tr>
+            </thead>
+            
+            <tbody>
+            {% for check in checks %}
+            <tr>
+                <th>{{ check.id }}</th>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>{{ check.created_at }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
         </table>
         
     </div>
