@@ -8,9 +8,10 @@ from flask import (
     get_flashed_messages
 )
 from page_analyzer.controller import UrlsTable, Url_Checks
-from page_analyzer.validator import validate_url
+from page_analyzer.validator import validate_url, check_page
 import os
 from dotenv import load_dotenv
+import requests
 
 load_dotenv()
 
@@ -65,7 +66,16 @@ def get_url(id):
 
 @app.post("/urls/<int:id>/checks")
 def get_check(id):
-    repo = Url_Checks()
-    result = repo.create_new(id)
-    flash(result[1], result[0])
-    return redirect(url_for('get_url', id=id))
+    url = UrlsTable()
+    repo_check = Url_Checks()
+    link = url.get_url_info(id)[1]
+    try:
+        check_result = check_page(link)
+        result = repo_check.create_new(id, check_result)
+        flash(result[1], result[0])
+        return redirect(url_for('get_url',
+                                id=id))
+    except requests.ConnectionError:
+        flash('Произошла ошибка при проверке', 'danger')
+        return redirect(url_for('get_url',
+                                id=id))

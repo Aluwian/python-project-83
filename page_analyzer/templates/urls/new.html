@@ -67,10 +67,10 @@
             {% for check in checks %}
             <tr>
                 <th>{{ check.id }}</th>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>{{ check.status_code }}</td>
+                <td>{{ check.h1 }}</td>
+                <td>{{ check.title }}</td>
+                <td>{{ check.description }}</td>
                 <td>{{ check.created_at }}</td>
             </tr>
             {% endfor %}

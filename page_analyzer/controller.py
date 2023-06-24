@@ -50,14 +50,15 @@ class UrlsTable:
         cur = self.connect.cursor()
         result = []
         checks = Url_Checks()
-        cur.execute("SELECT id, name FROM urls ORDER BY created_at DESC;")
+        cur.execute("SELECT id, name FROM urls ORDER BY id DESC;")
         array = cur.fetchall()
         for value in array:
             result.append(
                 {
                     'id': value[0],
                     'name': value[1],
-                    'last_check': checks.get_last_check(value[0])
+                    'last_check': checks.get_last(value[0]).get('created_at'),
+                    'status_code': checks.get_last(value[0]).get('status_code')
                 }
             )
         return result
@@ -67,11 +68,22 @@ class Url_Checks:
     def __init__(self):
         self.connect = connect_to_db()
 
-    def create_new(self, url_id):
+    def create_new(self, url_id, page_info):
         cur = self.connect.cursor()
-        created_ad = date.today()
-        cur.execute("INSERT INTO url_checks (url_id, created_at)"
-                    "VALUES (%s, %s);", (url_id, created_ad))
+        created_at = date.today()
+        cur.execute("INSERT INTO url_checks ("
+                    "url_id, status_code, h1, title, description, created_at"
+                    ")"
+                    "VALUES (%s, %s, %s, %s, %s, %s);",
+                    (
+                        url_id,
+                        page_info.get('status_code'),
+                        page_info.get('h1'),
+                        page_info.get('title'),
+                        page_info.get('description'),
+                        created_at
+                    )
+                    )
         self.connect.commit()
         return 'success', 'Страница успешно проверена'
 
@@ -79,26 +91,40 @@ class Url_Checks:
         cur = self.connect.cursor()
         result = []
         query = sql.SQL(
-            "SELECT {value_1}, {value_2} FROM {table} WHERE {value_3} = %s"
-            "ORDER BY {value_1} DESC;"
+            "SELECT {id}, {status}, {h1}, {title}, {desc}, {date} FROM {table}"
+            "WHERE {value_3} = %s"
+            "ORDER BY {id} DESC;"
         ).format(
-            value_1=sql.Identifier('id'),
-            value_2=sql.Identifier('created_at'),
+            id=sql.Identifier('id'),
+            status=sql.Identifier('status_code'),
+            h1=sql.Identifier('h1'),
+            title=sql.Identifier('title'),
+            desc=sql.Identifier('description'),
+            date=sql.Identifier('created_at'),
             value_3=sql.Identifier('url_id'),
             table=sql.Identifier('url_checks')
         )
         cur.execute(query, (url_id,))
         array = cur.fetchall()
         for value in array:
-            result.append({'id': value[0], 'created_at': value[1]})
+            result.append({
+                'id': value[0],
+                'status_code': value[1],
+                'h1': value[2],
+                'title': value[3],
+                'description': value[4],
+                'created_at': value[5]
+            })
         return result
 
-    def get_last_check(self, value):
+    def get_last(self, value):
         cur = self.connect.cursor()
         query = sql.SQL(
-            "SELECT {value_1} FROM {table} WHERE {value_2} = %s "
+            "SELECT {create_at}, {status_code} FROM {table}"
+            "WHERE {value_2} = %s "
             "ORDER BY {value_3} DESC LIMIT 1;").format(
-            value_1=sql.Identifier('created_at'),
+            create_at=sql.Identifier('created_at'),
+            status_code=sql.Identifier('status_code'),
             value_2=sql.Identifier('url_id'),
             value_3=sql.Identifier('id'),
             table=sql.Identifier('url_checks')
@@ -107,4 +133,6 @@ class Url_Checks:
         result = cur.fetchone()
         if result is None:
             return ""
-        return result[0]
+        return {"created_at": result[0],
+                "status_code": result[1]
+                }

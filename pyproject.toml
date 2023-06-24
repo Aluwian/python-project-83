@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hexlet-code"
-version = "0.2.0"
+version = "0.3.0"
 description = ""
 authors = ["Anna Bystrova <annbystr@gmail.com>"]
 readme = "README.md"
@@ -18,6 +18,8 @@ gunicorn = "^20.1.0"
 psycopg2-binary = "^2.9.6"
 validators = "^0.20.0"
 python-dotenv = "^1.0.0"
+requests = "^2.31.0"
+beautifulsoup4 = "^4.12.2"
 
 
 [tool.poetry.group.dev.dependencies]
