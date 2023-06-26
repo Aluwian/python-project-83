@@ -12,7 +12,6 @@ from page_analyzer.validator import validate_url
 from page_analyzer.analyzer import analyze_page
 import os
 from dotenv import load_dotenv
-import requests
 
 load_dotenv()
 
@@ -76,7 +75,7 @@ def get_check(id):
         flash(result[1], result[0])
         return redirect(url_for('get_url',
                                 id=id))
-    except requests.ConnectionError:
+    except Exception:
         flash('Произошла ошибка при проверке', 'danger')
         return redirect(url_for('get_url',
                                 id=id))

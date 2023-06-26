@@ -38,8 +38,7 @@ def get_analyze_info(page, code):
 
 def analyze_page(link):
     r = requests.get(link)
+    r.raise_for_status()
     status_code = r.status_code
-    if 200 > status_code > 299:
-        raise RuntimeError
     html_code = BeautifulSoup(r.text, 'html.parser')
     return get_analyze_info(html_code, status_code)
