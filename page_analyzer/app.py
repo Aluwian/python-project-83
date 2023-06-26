@@ -19,9 +19,6 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
-url_base = UrlsTable()
-checks_base = Url_Checks()
-
 
 @app.route('/')
 def get_main():
@@ -30,7 +27,8 @@ def get_main():
 
 @app.get('/urls')
 def get_urls_page():
-    array = url_base.get_all_info()
+    table = UrlsTable()
+    array = table.get_all_info()
     return render_template('urls/index.html',
                            urls=array
                            )
@@ -45,6 +43,7 @@ def create_new_url():
                                url=data,
                                messages=errors,
                                ), 422
+    url_base = UrlsTable()
     values = url_base.has_name(data)
     id, result = values
     flash(result[1], result[0])
@@ -53,7 +52,9 @@ def create_new_url():
 
 @app.get('/urls/<int:id>')
 def get_url(id):
-    data = url_base.get_url_info(id)
+    urt_table = UrlsTable()
+    checks_base = Url_Checks()
+    data = urt_table.get_url_info(id)
     messages = get_flashed_messages(with_categories=True)
     checks = checks_base.get_all_checks(id)
     return render_template('urls/new.html',
@@ -66,8 +67,10 @@ def get_url(id):
 
 @app.post("/urls/<int:id>/checks")
 def get_check(id):
-    link = url_base.get_url_info(id)[1]
+    urls = UrlsTable()
+    link = urls.get_url_info(id)[1]
     try:
+        checks_base = Url_Checks()
         check_result = analyze_page(link)
         result = checks_base.create_new(id, check_result)
         flash(result[1], result[0])
