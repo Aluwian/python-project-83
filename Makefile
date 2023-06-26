@@ -29,5 +29,5 @@ start:
 all:
 	db-create database-load
 
-database-load:
+load:
 	psql python-project-83 < database.sql

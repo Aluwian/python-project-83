@@ -117,7 +117,7 @@ class Url_Checks:
             })
         return result
 
-    def get_last(self, value):
+    def get_last(self, value_id):
         cur = self.connect.cursor()
         query = sql.SQL(
             "SELECT {create_at}, {status_code} FROM {table}"
@@ -129,10 +129,12 @@ class Url_Checks:
             value_3=sql.Identifier('id'),
             table=sql.Identifier('url_checks')
         )
-        cur.execute(query, (value,))
+        cur.execute(query, (value_id,))
         result = cur.fetchone()
         if result is None:
-            return ""
+            return {"created_at": "",
+                    "status_code": ""
+                    }
         return {"created_at": result[0],
                 "status_code": result[1]
                 }

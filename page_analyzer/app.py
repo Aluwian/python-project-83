@@ -7,8 +7,9 @@ from flask import (
     flash,
     get_flashed_messages
 )
-from page_analyzer.controller import UrlsTable, Url_Checks
-from page_analyzer.validator import validate_url, check_page
+from page_analyzer.dbase import UrlsTable, Url_Checks
+from page_analyzer.validator import validate_url
+from page_analyzer.analyzer import analyze_page
 import os
 from dotenv import load_dotenv
 import requests
@@ -18,6 +19,9 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
+url_base = UrlsTable()
+checks_base = Url_Checks()
+
 
 @app.route('/')
 def get_main():
@@ -25,9 +29,8 @@ def get_main():
 
 
 @app.get('/urls')
-def get_page():
-    repo = UrlsTable()
-    array = repo.get_all_info()
+def get_urls_page():
+    array = url_base.get_all_info()
     return render_template('urls/index.html',
                            urls=array
                            )
@@ -42,8 +45,7 @@ def create_new_url():
                                url=data,
                                messages=errors,
                                ), 422
-    repo = UrlsTable()
-    values = repo.has_name(data)
+    values = url_base.has_name(data)
     id, result = values
     flash(result[1], result[0])
     return redirect(url_for('get_url', id=id))
@@ -51,11 +53,9 @@ def create_new_url():
 
 @app.get('/urls/<int:id>')
 def get_url(id):
-    repo = UrlsTable()
-    data = repo.get_url_info(id)
+    data = url_base.get_url_info(id)
     messages = get_flashed_messages(with_categories=True)
-    check_repo = Url_Checks()
-    checks = check_repo.get_all_checks(id)
+    checks = checks_base.get_all_checks(id)
     return render_template('urls/new.html',
                            id=id,
                            name=data[1],
@@ -66,12 +66,10 @@ def get_url(id):
 
 @app.post("/urls/<int:id>/checks")
 def get_check(id):
-    url = UrlsTable()
-    repo_check = Url_Checks()
-    link = url.get_url_info(id)[1]
+    link = url_base.get_url_info(id)[1]
     try:
-        check_result = check_page(link)
-        result = repo_check.create_new(id, check_result)
+        check_result = analyze_page(link)
+        result = checks_base.create_new(id, check_result)
         flash(result[1], result[0])
         return redirect(url_for('get_url',
                                 id=id))
