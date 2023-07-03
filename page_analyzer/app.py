@@ -21,14 +21,14 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 
 @app.route('/')
 def get_main():
-    return render_template('index.html')
+    return render_template('pages/index.html')
 
 
 @app.get('/urls')
 def get_urls_page():
     table = UrlsTable()
     array = table.get_all_info()
-    return render_template('urls/index.html',
+    return render_template('pages/urls/index.html',
                            urls=array
                            )
 
@@ -38,7 +38,7 @@ def create_new_url():
     data = request.form.to_dict()
     errors = validate_url(data)
     if errors:
-        return render_template('index.html',
+        return render_template('pages/index.html',
                                url=data,
                                messages=errors,
                                ), 422
@@ -56,7 +56,7 @@ def get_url(id):
     data = urt_table.get_url_info(id)
     messages = get_flashed_messages(with_categories=True)
     checks = checks_base.get_all_checks(id)
-    return render_template('urls/new.html',
+    return render_template('pages/urls/new.html',
                            id=id,
                            name=data[1],
                            created_at=data[2],
