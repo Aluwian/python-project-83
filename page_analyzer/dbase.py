@@ -25,8 +25,8 @@ def add_check(url_id, page_info):
         with conn.cursor() as cur:
             created_at = date.today()
             cur.execute("INSERT INTO url_checks ("
-                        "url_id, status_code, h1, title, description, created_at"
-                        ")"
+                        "url_id, status_code, h1, title,"
+                        "description, created_at)"
                         "VALUES (%s, %s, %s, %s, %s, %s);",
                         (
                             url_id,
@@ -46,7 +46,8 @@ def has_url_name(url):
     with connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             url_name = normalize_url(url)
-            query = sql.SQL("SELECT {find} FROM {table} WHERE {key} = %s").format(
+            query = sql.SQL("SELECT {find} FROM {table}"
+                            "WHERE {key} = %s").format(
                 find=sql.Identifier('id'),
                 table=sql.Identifier('urls'),
                 key=sql.Identifier('name')
@@ -84,8 +85,8 @@ def get_all_urls():
                     {
                         'id': value[0],
                         'name': value[1],
-                        'last_check': get_last_check(value[0]).get('created_at'),
-                        'status_code': get_last_check(value[0]).get('status_code')
+                        'last_check': get_last(value[0]).get('created_at'),
+                        'status_code': get_last(value[0]).get('status_code')
                     }
                 )
     conn.close()
@@ -97,18 +98,18 @@ def get_all_checks(url_id):
         with conn.cursor() as cur:
             result = []
             query = sql.SQL(
-                "SELECT {id}, {status}, {h1}, {title}, {desc}, {date} FROM {table}"
+                "SELECT {id}, {stat}, {h1}, {t}, {desc}, {date} FROM {check}"
                 "WHERE {value_3} = %s"
                 "ORDER BY {id} DESC;"
             ).format(
                 id=sql.Identifier('id'),
-                status=sql.Identifier('status_code'),
+                stat=sql.Identifier('status_code'),
                 h1=sql.Identifier('h1'),
-                title=sql.Identifier('title'),
+                t=sql.Identifier('title'),
                 desc=sql.Identifier('description'),
                 date=sql.Identifier('created_at'),
                 value_3=sql.Identifier('url_id'),
-                table=sql.Identifier('url_checks')
+                check=sql.Identifier('url_checks')
             )
             cur.execute(query, (url_id,))
             array = cur.fetchall()
@@ -125,7 +126,7 @@ def get_all_checks(url_id):
     return result
 
 
-def get_last_check(value_id):
+def get_last(value_id):
     with connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             query = sql.SQL(
