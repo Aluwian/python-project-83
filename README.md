@@ -4,5 +4,6 @@
 <a href="https://codeclimate.com/github/Aluwian/python-project-83/maintainability"><img src="https://api.codeclimate.com/v1/badges/9114d9f4a82ed2ffa5eb/maintainability" /></a>
 <a href="https://codeclimate.com/github/Aluwian/python-project-83/test_coverage"><img src="https://api.codeclimate.com/v1/badges/9114d9f4a82ed2ffa5eb/test_coverage" /></a>
 
+Page Analyzer — это сайт, который анализирует указанные страницы на пригодность для SEO.
 
-[Перейти](https://python-project-83-0yjb.onrender.com)
+[Application Link](https://python-project-83-0yjb.onrender.com)
