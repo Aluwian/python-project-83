@@ -24,6 +24,11 @@ def get_main():
     return render_template('pages/index.html')
 
 
+@app.errorhandler(404)
+def get_404(error):
+    return render_template('pages/404.html'), 404
+
+
 @app.get('/urls')
 def get_urls_page():
     table = UrlsTable()
