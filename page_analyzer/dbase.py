@@ -1,8 +1,8 @@
 import os
-from psycopg2 import connect, sql
+from psycopg2 import connect, sql, extras
 from datetime import date
-from page_analyzer.validator import normalize_url
 from dotenv import load_dotenv
+
 
 load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -16,7 +16,6 @@ def add_url(url_text):
                         "VALUES (%s, %s) RETURNING id;", (url_text, created_ad))
             result = cur.fetchone()
     conn.commit()
-    conn.close()
     return result[0]
 
 
@@ -38,30 +37,25 @@ def add_check(url_id, page_info):
                         )
                         )
     conn.commit()
-    conn.close()
-    return 'success', 'Страница успешно проверена'
 
 
-def has_url_name(url):
+def get_id_by_url(url):
     with connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            url_name = normalize_url(url)
             query = sql.SQL("SELECT {find} FROM {table}"
                             "WHERE {key} = %s").format(
                 find=sql.Identifier('id'),
                 table=sql.Identifier('urls'),
                 key=sql.Identifier('name')
             )
-            cur.execute(query, (url_name,))
+            cur.execute(query, (url,))
             result = cur.fetchone()
-    conn.close()
     if result is None:
-        return add_url(url_name), \
-            ('success', 'Страница успешно добавлена')
-    return result[0], ('info', 'Страница уже существует')
+        return None
+    return result[0]
 
 
-def get_one_url(url_id):
+def get_url_by_id(url_id):
     with connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             query = sql.SQL("SELECT * FROM {table} WHERE {key} = %s").format(
@@ -70,7 +64,6 @@ def get_one_url(url_id):
             )
             cur.execute(query, (url_id,))
             result = cur.fetchone()
-    conn.close()
     return result
 
 
@@ -81,21 +74,24 @@ def get_all_urls():
             cur.execute("SELECT id, name FROM urls ORDER BY id DESC;")
             array = cur.fetchall()
             for value in array:
-                result.append(
-                    {
-                        'id': value[0],
+                item = {'id': value[0],
                         'name': value[1],
-                        'last_check': get_last(value[0]).get('created_at'),
-                        'status_code': get_last(value[0]).get('status_code')
-                    }
-                )
-    conn.close()
+                        'last_check': "",
+                        'status_code': ""
+                        }
+                try:
+                    last_check = get_last(item.get('id'))
+                    item['last_check'] = last_check.get('created_at')
+                    item['status_code'] = last_check.get('status_code')
+                except Exception:
+                    pass
+                result.append(item)
     return result
 
 
 def get_all_checks(url_id):
     with connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
+        with conn.cursor(cursor_factory=extras.DictCursor) as cur:
             result = []
             query = sql.SQL(
                 "SELECT {id}, {stat}, {h1}, {t}, {desc}, {date} FROM {check}"
@@ -114,21 +110,13 @@ def get_all_checks(url_id):
             cur.execute(query, (url_id,))
             array = cur.fetchall()
             for value in array:
-                result.append({
-                    'id': value[0],
-                    'status_code': value[1],
-                    'h1': value[2],
-                    'title': value[3],
-                    'description': value[4],
-                    'created_at': value[5]
-                })
-    conn.close()
+                result.append(value)
     return result
 
 
 def get_last(value_id):
     with connect(DATABASE_URL) as conn:
-        with conn.cursor() as cur:
+        with conn.cursor(cursor_factory=extras.DictCursor) as cur:
             query = sql.SQL(
                 "SELECT {create_at}, {status_code} FROM {table}"
                 "WHERE {value_2} = %s "
@@ -141,11 +129,6 @@ def get_last(value_id):
             )
             cur.execute(query, (value_id,))
             result = cur.fetchone()
-    conn.close()
     if result is None:
-        return {"created_at": "",
-                "status_code": ""
-                }
-    return {"created_at": result[0],
-            "status_code": result[1]
-            }
+        raise Exception
+    return result

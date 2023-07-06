@@ -8,7 +8,7 @@ from flask import (
     get_flashed_messages
 )
 from page_analyzer import dbase
-from page_analyzer.validator import validate_url
+from page_analyzer.validator import validate_url, normalize_url
 from page_analyzer.analyzer import analyze_page
 import os
 from dotenv import load_dotenv
@@ -46,15 +46,19 @@ def create_new_url():
                                url=data,
                                messages=errors,
                                ), 422
-    values = dbase.has_url_name(data.get('url'))
-    id, result = values
-    flash(result[1], result[0])
-    return redirect(url_for('get_url', id=id))
+    url = normalize_url(data.get('url'))
+    id = dbase.get_id_by_url(url)
+    if id is not None:
+        flash('Страница уже существует', 'info')
+        return redirect(url_for('get_url', id=id))
+    new_id = dbase.add_url(url)
+    flash('Страница успешно добавлена', 'success')
+    return redirect(url_for('get_url', id=new_id))
 
 
 @app.get('/urls/<int:id>')
 def get_url(id):
-    data = dbase.get_one_url(id)
+    data = dbase.get_url_by_id(id)
     messages = get_flashed_messages(with_categories=True)
     checks = dbase.get_all_checks(id)
     return render_template('pages/urls/new.html',
@@ -67,11 +71,11 @@ def get_url(id):
 
 @app.post("/urls/<int:id>/checks")
 def get_check(id):
-    link = dbase.get_one_url(id)[1]
+    link = dbase.get_url_by_id(id)[1]
     try:
         check_result = analyze_page(link)
-        result = dbase.add_check(id, check_result)
-        flash(result[1], result[0])
+        dbase.add_check(id, check_result)
+        flash('Страница успешно проверена', 'success')
         return redirect(url_for('get_url',
                                 id=id))
     except Exception:
