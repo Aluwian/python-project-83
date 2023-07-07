@@ -47,10 +47,10 @@ def create_new_url():
                                messages=errors,
                                ), 422
     url = normalize_url(data.get('url'))
-    id = dbase.get_id_by_url(url)
-    if id is not None:
+    url_id = dbase.get_id_by_url(url)
+    if url_id is not None:
         flash('Страница уже существует', 'info')
-        return redirect(url_for('get_url', id=id))
+        return redirect(url_for('get_url', id=url_id))
     new_id = dbase.add_url(url)
     flash('Страница успешно добавлена', 'success')
     return redirect(url_for('get_url', id=new_id))
